@@ -28,14 +28,19 @@ def main(
     model_id="runwayml/stable-diffusion-v1-5",
     prompt_path="assets/ViLG-300.csv",
     save_path=None,
+    dtype='fp16',
 ):
     if save_path is None:
         save_path = os.path.join('saved', model_id.replace('/', '_'))
         os.makedirs(save_path, exist_ok=True)
 
     prompts = load_prompts(prompt_path)
-    pipeline = AutoPipelineForText2Image.from_pretrained(model_id)
-    pipeline.to(device='cuda', dtype=torch.float16)
+    pipeline = AutoPipelineForText2Image.from_pretrained(
+        model_id, 
+        torch_dtype=torch.float32 if dtype == 'fp32' else torch.float16
+    )
+    pipeline.to(device='cuda')
+    pipeline.safety_checker = None
     for i, prompt in enumerate(prompts):
         print(f'{i}|{len(prompts)}: {prompt}')
         image = pipeline(prompt).images[0]
