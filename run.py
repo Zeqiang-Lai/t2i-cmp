@@ -29,6 +29,7 @@ def main(
     prompt_path="assets/ViLG-300.csv",
     save_path=None,
     dtype='fp16',
+    variant=None,
 ):
     if save_path is None:
         save_path = os.path.join('saved', model_id.replace('/', '_'))
@@ -37,6 +38,7 @@ def main(
     prompts = load_prompts(prompt_path)
     pipeline = AutoPipelineForText2Image.from_pretrained(
         model_id, 
+        variant=variant, 
         torch_dtype=torch.float32 if dtype == 'fp32' else torch.float16
     )
     pipeline.to(device='cuda')
